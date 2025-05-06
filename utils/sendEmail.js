@@ -1,18 +1,25 @@
 const nodemailer = require('nodemailer')
+const config = require('config')
 
 exports.sendTicketEmail = async function (email, ticket, eventTitle) {
   let transporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: config.get('mail_host'),
+    port: config.get('mail_port'),
     auth: {
-      user: process.env.MAIL_USER,
-      pass: process.env.MAIL_PASS,
+      user: config.get('mail_user'),
+      pass: config.get('mail_pass'),
     },
   })
 
   await transporter.sendMail({
-    from: '"Event Team" <noreply@events.com>',
+    from: '« Équipe événementielle » <noreply@events.com>',
     to: email,
-    subject: `Your Ticket for ${eventTitle}`,
-    text: `Thank you for registering. Your ticket code is: ${ticket}`,
+    subject: ` Votre billet pour ${eventTitle}`,
+    html: `<html>
+    <body>
+      <p>Merci de votre inscription.</p>
+      <p>Votre code de billet est : <strong>${ticket}</strong></p>
+    </body>
+  </html>`,
   })
 }

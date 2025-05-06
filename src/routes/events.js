@@ -1,3 +1,4 @@
+const { sendTicketEmail } = require('../../utils/sendEmail')
 const db = require('../startup/db')
 const express = require('express')
 const router = express.Router()
@@ -93,6 +94,7 @@ router.post('/events/:id/participate', async (req, res) => {
   )
 
   // TODO: send ticket by email using nodemailer
+  sendTicketEmail(email, ticket, event.rows[0].title)
   res.status(201).json({ message: 'Participation confirmed', ticket })
 })
 

@@ -1,3 +1,7 @@
 {
-  "db": "tk_db"
+  "db": "tk_db",
+  "mail_host": "tk_mail_host",
+  "mail_port": "tk_mail_port",
+  "mail_user": "tk_mail_user",
+  "mail_pass": "tk_mail_pass"
 }

@@ -1,3 +1,7 @@
 {
-  "db": ""
+  "db": "",
+  "mail_host": "",
+  "mail_port": 587,
+  "mail_user": "",
+  "mail_pass": ""
 }
