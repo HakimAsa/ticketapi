@@ -1,11 +1,12 @@
 const { sendTicketEmail } = require('../../utils/sendEmail')
+const authenticateAdmin = require('../middleware/authenticateAdmin')
 const db = require('../startup/db')
 const express = require('express')
 const router = express.Router()
 
 // ADMINS ROUTES
 // Create event
-router.post('/admin/events', async (req, res) => {
+router.post('/admin/events', authenticateAdmin, async (req, res) => {
   const { title, description, start_date, end_date, max_participants } =
     req.body
   await db.query(
@@ -17,7 +18,7 @@ router.post('/admin/events', async (req, res) => {
 })
 
 // Update event
-router.put('/admin/events/:id', async (req, res) => {
+router.put('/admin/events/:id', authenticateAdmin, async (req, res) => {
   const { title, description, start_date, end_date, status, max_participants } =
     req.body
   await db.query(
@@ -37,22 +38,26 @@ router.put('/admin/events/:id', async (req, res) => {
 })
 
 // Soft delete event
-router.delete('/admin/events/:id', async (req, res) => {
+router.delete('/admin/events/:id', authenticateAdmin, async (req, res) => {
   await db.query(`UPDATE events SET deleted=TRUE WHERE id=$1`, [req.params.id])
   res.sendStatus(200)
 })
 
 // Get participants of an event
-router.get('/admin/events/:id/participants', async (req, res) => {
-  const result = await db.query(
-    `SELECT * FROM participants WHERE event_id=$1`,
-    [req.params.id]
-  )
-  res.json(result.rows)
-})
+router.get(
+  '/admin/events/:id/participants',
+  authenticateAdmin,
+  async (req, res) => {
+    const result = await db.query(
+      `SELECT * FROM participants WHERE event_id=$1`,
+      [req.params.id]
+    )
+    res.json(result.rows)
+  }
+)
 
 // Get stats per event
-router.get('/admin/events/:id/stats', async (req, res) => {
+router.get('/admin/events/:id/stats', authenticateAdmin, async (req, res) => {
   const result = await db.query(
     `SELECT COUNT(*) AS total_participants FROM participants WHERE event_id=$1`,
     [req.params.id]
@@ -94,7 +99,7 @@ router.post('/events/:id/participate', async (req, res) => {
   )
 
   // TODO: send ticket by email using nodemailer
-  sendTicketEmail(email, ticket, event.rows[0].title)
+  await sendTicketEmail(email, ticket, event.rows[0].title)
   res.status(201).json({ message: 'Participation confirmed', ticket })
 })
 

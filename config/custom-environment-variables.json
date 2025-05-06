@@ -1,5 +1,8 @@
 {
   "db": "tk_db",
+  "jwtExpiresIn": "tk_jwtExpiresIn",
+  "jwtCookieExpire": "tk_jwtCookieExpire",
+  "jwtPrivateKey": "tk_jwtPrivateKey",
   "mail_host": "tk_mail_host",
   "mail_port": "tk_mail_port",
   "mail_user": "tk_mail_user",
