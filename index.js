@@ -17,7 +17,7 @@ app.use(cors())
 app.use(express.json())
 app.use(cookieParser())
 
-app.use('/api/v1/auth', auth)
+app.use('/api/v1/auth/admin', auth)
 app.use('/api/v1', events)
 
 app.get('/users', async (req, res) => {
