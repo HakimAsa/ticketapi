@@ -4,7 +4,9 @@
   "description": "application de ticketerie",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon --exec node index.js",
+    "start": "node index.js"
   },
   "author": "akim ayena",
   "license": "MIT",
@@ -15,6 +17,7 @@
     "express": "^5.1.0",
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
-    "nodemon": "^3.1.10"
+    "nodemon": "^3.1.10",
+    "pg": "^8.15.6"
   }
 }
