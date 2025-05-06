@@ -1,22 +1,31 @@
+const cors = require('cors')
 const express = require('express')
+const cookieParser = require('cookie-parser')
+
 const client = require('./src/startup/db')
+const events = require('./src/routes/events')
+require('./src/jobs/expireEvents') // runs the daily job
 
 const app = express()
 app.use(express.json())
+
 const port = process.env.PORT || 3025
 const env = process.env.NODE_ENV || 'development'
 
 app.use(cors())
 app.use(express.json())
+app.use(cookieParser())
+
+app.use('/api/v1', events)
 
 app.get('/users', async (req, res) => {
   const result = await client.query('SELECT * FROM users')
   res.json(result.rows)
 })
 
-app.listen(3025, () => {
+app.listen(port, () => {
   console.log(
-    `Example app listening on port ${port} in ${env} mode...`.yellow.underline
+    `🚀Example app listening on port ${port} in ${env} mode...`.yellow.underline
       .bold
   )
 })

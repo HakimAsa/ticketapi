@@ -1,10 +1,10 @@
 require('colors')
-const { Client } = require('pg')
+const { Pool } = require('pg')
 const config = require('config')
 
 // Create a new instance of the Client
 const db = config.get('db')
-const client = new Client({
+const client = new Pool({
   connectionString: db,
   ssl: {
     rejectUnauthorized: false,

@@ -1,5 +1,5 @@
 const cron = require('node-cron')
-const db = require('../db')
+const db = require('../startup/db')
 
 cron.schedule('59 23 * * *', async () => {
   await db.query(
