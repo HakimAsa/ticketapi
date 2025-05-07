@@ -65,6 +65,18 @@ app.get('/users', async (req, res) => {
   res.json(result.rows)
 })
 
+app.get('/api/v1', (req, res) => {
+  res.json({ message: 'Welcome to Ticket API version 1' })
+})
+
+app.get('/', (req, res) => {
+  res.send('Hello  Waouh Monde!')
+})
+
+app.get('/favicon.ico', (req, res) => {
+  res.send('favicon.icon')
+})
+
 app.listen(port, () => {
   console.log(
     `🚀Example app listening on port ${port} in ${env} mode...`.yellow.underline
