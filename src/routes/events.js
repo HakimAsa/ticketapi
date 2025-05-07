@@ -37,6 +37,26 @@ router.put('/admin/events/:id', authenticateAdmin, async (req, res) => {
   res.sendStatus(200)
 })
 
+// PATCH event
+router.patch('/admin/events/:id', authenticateAdmin, async (req, res) => {
+  const { title, description, start_date, end_date, status, max_participants } =
+    req.body
+  await db.query(
+    `UPDATE events SET title=$1, description=$2, start_date=$3, end_date=$4,
+       status=$5, max_participants=$6 WHERE id=$7`,
+    [
+      title,
+      description,
+      start_date,
+      end_date,
+      status,
+      max_participants,
+      req.params.id,
+    ]
+  )
+  res.sendStatus(200)
+})
+
 // Soft delete event
 router.delete('/admin/events/:id', authenticateAdmin, async (req, res) => {
   await db.query(`UPDATE events SET deleted=TRUE WHERE id=$1`, [req.params.id])
