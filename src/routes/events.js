@@ -84,7 +84,25 @@ router.get('/admin/events/:id/stats', authenticateAdmin, async (req, res) => {
   )
   res.json(result.rows[0])
 })
-
+// 📊 GET - Récupérer les stats des participants par événement
+router.get('/admin/events/stats', authenticateAdmin, async (req, res) => {
+  try {
+    const result = await db.query(`
+        SELECT
+          events.id as event_id,
+          events.title,
+          COUNT(participants.id) as participant_count
+        FROM events
+        LEFT JOIN participants ON participants.event_id = events.id
+        GROUP BY events.id, events.title
+        ORDER BY events.start_date ASC
+      `)
+    res.json(result.rows)
+  } catch (err) {
+    console.error('Error getting stats', err)
+    res.status(500).json({ message: 'Server error while fetching stats' })
+  }
+})
 //   PUBLIC ROUTES
 // List all non-deleted events
 router.get('/events', async (req, res) => {
@@ -118,9 +136,28 @@ router.post('/events/:id/participate', async (req, res) => {
     [eventId, first_name, last_name, email, ticket]
   )
 
-  // TODO: send ticket by email using nodemailer
   await sendTicketEmail(email, ticket, event.rows[0].title)
   res.status(201).json({ message: 'Participation confirmed', ticket })
+})
+
+// 📊 GET - Récupérer les stats des participants par événement
+router.get('/stats', authenticateAdmin, async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT
+        events.id as event_id,
+        events.title,
+        COUNT(participants.id) as participant_count
+      FROM events
+      LEFT JOIN participants ON participants.event_id = events.id
+      GROUP BY events.id, events.title
+      ORDER BY events.start_date ASC
+    `)
+    res.json(result.rows)
+  } catch (err) {
+    console.error('Error getting stats', err)
+    res.status(500).json({ message: 'Server error while fetching stats' })
+  }
 })
 
 module.exports = router // ✅ This must be present
