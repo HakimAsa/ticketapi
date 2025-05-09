@@ -3,10 +3,12 @@ const helmet = require('helmet')
 const express = require('express')
 const cookieParser = require('cookie-parser')
 const rateLimit = require('express-rate-limit')
+const hpp = require('hpp')
 
 const client = require('./src/startup/db')
 const events = require('./src/routes/events')
 const auth = require('./src/routes/admins')
+const { notFound, error } = require('./src/middleware/error')
 require('./src/jobs/expireEvents') // runs the daily job
 
 const app = express()
@@ -19,7 +21,6 @@ app.use(cors())
 app.use(express.json())
 app.use(cookieParser())
 // secure headers
-
 app.use(
   helmet({
     crossOriginEmbedderPolicy: false,
@@ -39,6 +40,9 @@ app.use(
     },
   })
 )
+
+// Prevent http param polution
+app.use(hpp())
 
 // Rate Limiting
 const limiter = rateLimit({
@@ -76,6 +80,10 @@ app.get('/', (req, res) => {
 app.get('/favicon.ico', (req, res) => {
   res.send('favicon.icon')
 })
+
+//global error middleware
+app.use(notFound)
+app.use(error)
 
 app.listen(port, () => {
   console.log(
