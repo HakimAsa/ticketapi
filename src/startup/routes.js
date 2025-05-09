@@ -9,7 +9,7 @@ const { notFound, error } = require('../middleware/error')
 // importing routes
 
 const events = require('../routes/events')
-const auth = require('../routes/admins')
+const auth = require('../routes/admin.routes')
 
 module.exports = function (app) {
   const db = app.get('db')
