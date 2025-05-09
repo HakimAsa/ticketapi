@@ -1,7 +1,8 @@
+const express = require('express')
+
 const { sendTicketEmail } = require('../../utils/sendEmail')
 const authenticateAdmin = require('../middleware/authenticateAdmin')
-const db = require('../startup/db')
-const express = require('express')
+
 const router = express.Router()
 
 // ADMINS ROUTES
@@ -9,7 +10,7 @@ const router = express.Router()
 router.post('/admin/events', authenticateAdmin, async (req, res) => {
   const { title, description, start_date, end_date, max_participants } =
     req.body
-  await db.query(
+  await req.db.query(
     `INSERT INTO events (title, description, start_date, end_date, max_participants)
        VALUES ($1, $2, $3, $4, $5)`,
     [title, description, start_date, end_date, max_participants]
@@ -21,7 +22,7 @@ router.post('/admin/events', authenticateAdmin, async (req, res) => {
 router.put('/admin/events/:id', authenticateAdmin, async (req, res) => {
   const { title, description, start_date, end_date, status, max_participants } =
     req.body
-  await db.query(
+  await req.db.query(
     `UPDATE events SET title=$1, description=$2, start_date=$3, end_date=$4,
        status=$5, max_participants=$6 WHERE id=$7`,
     [
@@ -41,7 +42,7 @@ router.put('/admin/events/:id', authenticateAdmin, async (req, res) => {
 router.patch('/admin/events/:id', authenticateAdmin, async (req, res) => {
   const { title, description, start_date, end_date, status, max_participants } =
     req.body
-  await db.query(
+  await req.db.query(
     `UPDATE events SET title=$1, description=$2, start_date=$3, end_date=$4,
        status=$5, max_participants=$6 WHERE id=$7`,
     [
@@ -59,7 +60,9 @@ router.patch('/admin/events/:id', authenticateAdmin, async (req, res) => {
 
 // Soft delete event
 router.delete('/admin/events/:id', authenticateAdmin, async (req, res) => {
-  await db.query(`UPDATE events SET deleted=TRUE WHERE id=$1`, [req.params.id])
+  await req.db.query(`UPDATE events SET deleted=TRUE WHERE id=$1`, [
+    req.params.id,
+  ])
   res.sendStatus(200)
 })
 
@@ -68,7 +71,7 @@ router.get(
   '/admin/events/:id/participants',
   authenticateAdmin,
   async (req, res) => {
-    const result = await db.query(
+    const result = await req.db.query(
       `SELECT * FROM participants WHERE event_id=$1`,
       [req.params.id]
     )
@@ -78,7 +81,7 @@ router.get(
 
 // Get stats per event
 router.get('/admin/events/:id/stats', authenticateAdmin, async (req, res) => {
-  const result = await db.query(
+  const result = await req.db.query(
     `SELECT COUNT(*) AS total_participants FROM participants WHERE event_id=$1`,
     [req.params.id]
   )
@@ -87,7 +90,7 @@ router.get('/admin/events/:id/stats', authenticateAdmin, async (req, res) => {
 // 📊 GET - Récupérer les stats des participants par événement
 router.get('/admin/events/stats', authenticateAdmin, async (req, res) => {
   try {
-    const result = await db.query(`
+    const result = await req.db.query(`
         SELECT
           events.id as event_id,
           events.title,
@@ -106,8 +109,18 @@ router.get('/admin/events/stats', authenticateAdmin, async (req, res) => {
 //   PUBLIC ROUTES
 // List all non-deleted events
 router.get('/events', async (req, res) => {
-  const result = await db.query(`SELECT * FROM events WHERE deleted = FALSE`)
-  res.json(result.rows)
+  try {
+    if (!req.db?.query) {
+      throw new Error('req.db is not a valid pool')
+    }
+    const result = await req.db.query(
+      `SELECT * FROM events WHERE deleted = FALSE`
+    )
+    res.json(result.rows)
+  } catch (error) {
+    console.error('Error fetching events', error)
+    return res.status(500).send('Server error')
+  }
 })
 
 // Participate in an event
@@ -115,13 +128,13 @@ router.post('/events/:id/participate', async (req, res) => {
   const { first_name, last_name, email } = req.body
   const eventId = req.params.id
 
-  const event = await db.query(
+  const event = await req.db.query(
     `SELECT * FROM events WHERE id=$1 AND deleted=FALSE`,
     [eventId]
   )
   if (!event.rows.length) return res.status(404).send('Event not found')
 
-  const count = await db.query(
+  const count = await req.db.query(
     `SELECT COUNT(*) FROM participants WHERE event_id=$1`,
     [eventId]
   )
@@ -130,7 +143,7 @@ router.post('/events/:id/participate', async (req, res) => {
 
   //node crypto
   const ticket = require('crypto').randomUUID()
-  await db.query(
+  await req.db.query(
     `INSERT INTO participants (event_id, first_name, last_name, email, ticket_code)
        VALUES ($1, $2, $3, $4, $5)`,
     [eventId, first_name, last_name, email, ticket]

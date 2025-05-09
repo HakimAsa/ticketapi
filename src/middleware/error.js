@@ -7,7 +7,7 @@ const notFound = (req, res, next) => {
 
 const error = (error, req, res, next) => {
   // Log exception
-  console.error(err.message, err)
+  console.error(error.message, error)
 
   res.status(500).json({
     success: false,

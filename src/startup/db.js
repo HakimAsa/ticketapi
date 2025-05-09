@@ -3,20 +3,22 @@ const { Pool } = require('pg')
 const config = require('config')
 
 // Create a new instance of the Client
-const db = config.get('db')
-const client = new Pool({
-  connectionString: db,
-  ssl: {
-    rejectUnauthorized: false,
-  },
-})
+module.exports = function () {
+  const db = config.get('db')
+  const pool = new Pool({
+    connectionString: db,
+    ssl: {
+      rejectUnauthorized: false,
+    },
+  })
 
-// Connect to PostgreSQL
-client
-  .connect()
-  .then(() =>
-    console.info(`connected to PostgeSQL at ${db}...`.cyan.underline.bold)
-  )
-  .catch((err) => console.log(err.message.red.underline.bold))
+  // Connect to PostgreSQL
+  pool
+    .query('SELECT NOW()')
+    .then(() =>
+      console.info(`connected to PostgeSQL at ${db}...`.cyan.underline.bold)
+    )
+    .catch((err) => console.log(err.message.red.underline.bold))
 
-module.exports = client
+  return pool
+}
