@@ -1,6 +1,6 @@
 const express = require('express')
 
-const { sendTicketEmail } = require('../../utils/sendEmail')
+const { sendTicketEmail } = require('../utils/sendEmail')
 const authenticateAdmin = require('../middleware/authenticateAdmin')
 
 const router = express.Router()
