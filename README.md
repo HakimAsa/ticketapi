@@ -46,12 +46,15 @@ tk_db=postgresql://postgres:password@host:port/dbname
 
 ```
 /config
-    default.json
-    custom-environment-variables.json
+  default.json
+  custom-environment-variables.json
 /routes
-  adminAuth.js
-  events.js
+  admin.routes.js
+  event.routes.js
 /controllers
+  /admin/auth.controllers.js
+  /events/admin/event.controllers.js
+  /events/public/event.controllers.js
 /startup
     db.js
 /index.js

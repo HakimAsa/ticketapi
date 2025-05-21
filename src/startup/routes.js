@@ -8,7 +8,7 @@ const hpp = require('hpp')
 const { notFound, error } = require('../middleware/error')
 // importing routes
 
-const events = require('../routes/events')
+const events = require('../routes/event.routes')
 const auth = require('../routes/admin.routes')
 
 module.exports = function (app) {
