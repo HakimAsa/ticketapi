@@ -47,9 +47,24 @@ const createEvent = asyncHandler(async (req, res) => {
 // @access  Private
 const getEventSummary = asyncHandler(async (req, res) => {
   const result = await req.db.query(
-    `SELECT COUNT(*) AS total_participants FROM participants WHERE event_id=$1`,
+    `SELECT
+      e.id,
+      e.title AS event_title,
+      e.max_participants,
+      e.start_date,
+      e.end_date,
+      COUNT(p.id) AS total_participants,
+      (e.max_participants - COUNT(p.id)) AS left_places,
+      ROUND(100.0 * COUNT(p.id) / NULLIF(e.max_participants, 0), 2) AS percentage_filled
+    FROM events e
+    LEFT JOIN participants p ON p.event_id = e.id
+    WHERE e.id = $1
+    GROUP BY e.id`,
     [req.params.id]
   )
+  if (result.rows.length === 0) {
+    return res.status(404).json({ message: 'Event not found' })
+  }
   res.json(result.rows[0])
 })
 
