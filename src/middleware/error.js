@@ -1,8 +1,9 @@
 const notFound = (req, res, next) => {
-  res.status(404)
-
+  const error = new Error(`Not Found - Route ${req.originalUrl} does not exist`)
   console.error(error.message, error)
-  next(new Error(`Not Found - Route ${req.originalUrl} does not exist`))
+  
+  res.status(404)
+  next(error)
 }
 
 const error = (error, req, res, next) => {
