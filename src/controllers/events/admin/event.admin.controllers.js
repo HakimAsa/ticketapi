@@ -76,6 +76,9 @@ const getEventParticipants = asyncHandler(async (req, res) => {
     `SELECT * FROM participants WHERE event_id=$1`,
     [req.params.id]
   )
+  if (result.rows.length === 0) {
+    return res.status(404).json({ success: false, message: 'Event not found' })
+  }
   res.json(result.rows)
 })
 
