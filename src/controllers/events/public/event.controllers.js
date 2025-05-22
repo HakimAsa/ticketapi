@@ -33,7 +33,9 @@ const participateToEvent = asyncHandler(async (req, res) => {
     `SELECT * FROM events WHERE id=$1 AND deleted=FALSE`,
     [eventId]
   )
-  if (!event.rows.length) return res.status(404).send('Event not found')
+  if (result.rows.length === 0) {
+    return res.status(404).json({ success: false, message: 'Event not found' })
+  }
 
   const count = await req.db.query(
     `SELECT COUNT(*) FROM participants WHERE event_id=$1`,

@@ -1,6 +1,7 @@
 const express = require('express')
 
 const authenticateAdmin = require('../middleware/authenticateAdmin')
+const validateId = require('../middleware/validateId')
 const {
   createEvent,
   getStats,
@@ -68,23 +69,27 @@ router.delete('/admin/events/:id', authenticateAdmin, async (req, res) => {
   res.sendStatus(200)
 })
 
+// PUBLIC ROUTES
+router.get(dsf(EVENTS), getEvents)
+
 // Admin events path
 router.get(dsf(ADMIN, EVENTS, STATS), authenticateAdmin, getStats)
+router.get(dsf(ADMIN, EVENTS), authenticateAdmin, getAllEvents)
+router.post(dsf(ADMIN, EVENTS), authenticateAdmin, createEvent)
+
+//dynamic paths such as :/id must be last
 router.get(
   dsf(ADMIN, EVENTS, CONS_ID, SUMMARY),
-  authenticateAdmin,
+  [validateId, authenticateAdmin],
   getEventSummary
 )
 router.get(
   dsf(ADMIN, EVENTS, CONS_ID, PARTICIPANTS),
-  authenticateAdmin,
+  [validateId, authenticateAdmin],
   getEventParticipants
 )
 
-router.get(dsf(ADMIN, EVENTS), authenticateAdmin, getAllEvents)
-router.post(dsf(ADMIN, EVENTS), authenticateAdmin, createEvent)
-// PUBLIC ROUTES
-router.get(dsf(EVENTS), getEvents)
-router.post(dsf(EVENTS, CONS_ID, PARTICIPATE), participateToEvent)
+// PUBLIC DYNAMIC ROUTES
+router.post(dsf(EVENTS, CONS_ID, PARTICIPATE), [validateId], participateToEvent)
 
 module.exports = router // ✅ This must be present

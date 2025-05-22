@@ -63,7 +63,7 @@ const getEventSummary = asyncHandler(async (req, res) => {
     [req.params.id]
   )
   if (result.rows.length === 0) {
-    return res.status(404).json({ message: 'Event not found' })
+    return res.status(404).json({ success: false, message: 'Event not found' })
   }
   res.json(result.rows[0])
 })
